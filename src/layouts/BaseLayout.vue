@@ -5,7 +5,7 @@ import ToastContainer from '@/components/ToastContainer.vue'
 
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-700 to-purple-700 px-4"
+    class="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-indigo-900 via-indigo-700 to-purple-700 px-4 pt-6"
   >
     <router-view />
     <ToastContainer />

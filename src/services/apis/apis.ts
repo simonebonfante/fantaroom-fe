@@ -29,3 +29,8 @@ export async function placeBid(userId: string, price: number) {
   const res = await api.post('/sessions/place-bid', { userId, price })
   return res.data
 }
+
+export async function declareWinner() {
+  const res = await api.post('/sessions/declare-winner')
+  return res.data
+}
