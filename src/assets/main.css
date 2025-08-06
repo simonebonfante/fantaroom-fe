@@ -6,6 +6,7 @@
 
 #app {
   max-width: 100%;
+  width: 100%;          /* <-- AGGIUNTO: occupa sempre tutta la viewport */
   margin: 0 auto;
   /* padding: 2rem; */
   font-weight: normal;

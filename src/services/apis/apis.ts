@@ -34,3 +34,8 @@ export async function declareWinner() {
   const res = await api.post('/sessions/declare-winner')
   return res.data
 }
+
+export async function skipSession() {
+  const res = await api.post('/sessions/skip-session')
+  return res.data
+}
