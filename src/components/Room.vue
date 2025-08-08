@@ -7,7 +7,9 @@ import {
   launchPlayer as apiLaunchPlayer,
   placeBid as apiPlaceBid,
   declareWinner as apiDeclareWinner,
-  skipSession as apiSkipSession
+  skipSession as apiSkipSession,
+  getUsers as apiGetUsers,
+  assignSession as apiAssignSession
 } from '@/services/apis/apis'
 
 type Player = {
@@ -45,6 +47,9 @@ const lastBid = ref<LastBid>()
 const bidPrice = ref<number | null>(null)
 const loadingWinner = ref(false)
 const playerRole = ref<PlayerRole | null>(null)
+const users = ref<User[]>([]);
+const userWinner = ref<User>();
+const assignPrice = ref<number | null>(null)
 
 async function fetchActivePlayer() {
   try {
@@ -57,7 +62,16 @@ async function fetchActivePlayer() {
       lastBid.value = { user: { id, name }, price };
     }
   } catch (e) {
-    console.log('Nessuna sessione attiva')
+    console.log('Nessuna sessione attiva', e)
+  }
+}
+
+async function fetchUsers() {
+  try {
+    const data = await apiGetUsers();
+    users.value = data.map((user: User) => ({ id: user.id, name: user.name }));
+  } catch (e) {
+    console.error('Errore fetch users', e)
   }
 }
 
@@ -94,7 +108,7 @@ async function submitBid() {
   try {
     await apiPlaceBid(userStore.userId, bidPrice.value)
     bidPrice.value = null
-  } catch (e: any) {
+  } catch (e: {response: {data: {error: string}}}) {
     console.error('Errore invio bid', e)
     notify(e?.response?.data?.error ? `Errore invio offerta: ${e.response.data.error}` : 'Errore invio offerta', 'error')
   }
@@ -109,8 +123,24 @@ async function skipSession() {
   }
 }
 
+async function submitAssign() {
+  if (!userWinner.value || !assignPrice.value) {
+    notify('Seleziona un vincitore e un prezzo', 'error')
+    return;
+  }
+  try {
+    await apiAssignSession(userWinner.value.id, assignPrice.value)
+    assignPrice.value = null
+    userWinner.value = undefined
+  } catch (e) {
+    console.error('Errore assegno vincitore', e)
+    notify(`Errore assegno vincitore: ${e}`, 'error')
+  }
+}
+
 onMounted(() => {
   fetchActivePlayer()
+  fetchUsers();
 
   socket.on('new-session', async () => {
     notify('Nuova asta iniziata!', 'success');
@@ -146,6 +176,7 @@ onBeforeUnmount(() => {
   socket.off('new-session')
   socket.off('new-bid')
   socket.off('winner-declared')
+  socket.off('session-skipped')
 })
 </script>
 
@@ -223,6 +254,29 @@ onBeforeUnmount(() => {
         class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded disabled:opacity-50 space-y-1"
       >
         Offri
+      </button>
+    </div>
+
+    <div v-if="isActiveSession && userStore.isAdmin && users.length > 0" class="flex items-center justify-center space-x-2 mt-4 space-y-1">
+      <div>
+        <select v-model="userWinner" class="bg-white text-gray-800 px-2 py-1 rounded">
+          <option v-for="user in users" :key="user.id" :value="user">{{ user.name }}</option>
+        </select>
+      </div>
+      <input
+        v-model.number="assignPrice"
+        type="number"
+        min="1"
+        class="w-24 px-2 py-1 rounded bg-white text-gray-800 placeholder-gray-500
+               focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        placeholder="Prezzo"
+      />
+      <button
+        @click="submitAssign"
+        :disabled="!assignPrice || !userWinner"
+        class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded disabled:opacity-50 space-y-1"
+      >
+        Assegna
       </button>
     </div>
     

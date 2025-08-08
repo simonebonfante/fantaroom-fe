@@ -39,3 +39,13 @@ export async function skipSession() {
   const res = await api.post('/sessions/skip-session')
   return res.data
 }
+
+export async function getUsers() {
+  const res = await api.get('/users')
+  return res.data
+}
+
+export async function assignSession(userId: string, price: number) {
+  const res = await api.post('/sessions/assign-session', { userId, price })
+  return res.data
+}
