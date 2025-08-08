@@ -130,6 +130,7 @@ async function submitAssign() {
   }
   try {
     await apiAssignSession(userWinner.value.id, assignPrice.value)
+    launchedPlayer.value!.activePrice = assignPrice.value;
     assignPrice.value = null
     userWinner.value = undefined
   } catch (e) {

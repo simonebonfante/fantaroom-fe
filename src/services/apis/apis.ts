@@ -49,3 +49,8 @@ export async function assignSession(userId: string, price: number) {
   const res = await api.post('/sessions/assign-session', { userId, price })
   return res.data
 }
+
+export async function getCompletedSessions() {
+  const res = await api.get('/sessions/completed')
+  return res.data
+}
