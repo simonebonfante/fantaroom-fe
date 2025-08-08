@@ -134,7 +134,14 @@ const getUserRemainingAmount = (userId: string) => {
                 :key="user.id"
                 class="min-w-[140px] border border-gray-300 px-2 py-1 text-center align-middle whitespace-nowrap"
               >
-                <span class="text-sm font-semibold">{{ getUserPlayer(row.role, row.slot, user.id) }}</span>
+                <transition name="fade" mode="out-in">
+                  <span
+                    :key="getUserPlayer(row.role, row.slot, user.id)"
+                    class="text-sm font-semibold"
+                  >
+                    {{ getUserPlayer(row.role, row.slot, user.id) }}
+                  </span>
+                </transition>
               </td>
             </tr>
           </template>
@@ -143,3 +150,16 @@ const getUserRemainingAmount = (userId: string) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Fade-in */
+.fade-enter-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+}
+.fade-enter-to {
+  opacity: 1;
+}
+</style>
